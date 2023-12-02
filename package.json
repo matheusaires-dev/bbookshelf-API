@@ -1,0 +1,26 @@
+{
+  "name": "bbookshelf-api",
+  "version": "1.0.0",
+  "description": "BBookshef é um aplicativo de leitura de livros inovador que oferece uma experiência literária excepcional. Com uma vasta biblioteca de títulos de diversos gêneros e autores, este app permite que os leitores mergulhem em histórias envolventes e descubram novos mundos a qualquer momento e em qualquer lugar.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "local": "npm run build && npm start"
+  },  
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.21",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "^20.10.2",
+    "express": "^4.18.2",
+    "mongoose": "^8.0.2",
+    "typescript": "^5.3.2"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0"
+  }
+}
