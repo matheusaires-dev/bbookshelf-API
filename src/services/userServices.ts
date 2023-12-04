@@ -5,6 +5,9 @@ const createUser = async (userData: IUser): Promise<IUserModel> => {
         const newUser = new UserModel(userData);
         return await newUser.save();
     } catch (error: any) {
+        if (error.code === 11000) {
+            throw new Error(`Erro ao criar usuário: email já cadastrado na base`);
+        }
         throw new Error(`Erro ao criar usuário: ${error.message}`);
     }
 };
@@ -22,6 +25,14 @@ const getUserById = async (userId: string): Promise<IUserModel | null> => {
         return await UserModel.findById(userId).exec();
     } catch (error: any) {
         throw new Error(`Erro ao obter usuário por ID: ${error.message}`);
+    }
+};
+
+const getUserByEmail = async (email: string): Promise<IUserModel | null> => {
+    try {
+        return await UserModel.findOne({ email }).exec();
+    } catch (error: any) {
+        throw new Error(error.message);
     }
 };
 
@@ -44,4 +55,5 @@ const deleteUserById = async (userId: string): Promise<void> => {
     }
 };
 
-export { createUser, getAllUsers, getUserById, updateUserById, deleteUserById };
+
+export { createUser, getAllUsers, getUserById, getUserByEmail, updateUserById, deleteUserById };
