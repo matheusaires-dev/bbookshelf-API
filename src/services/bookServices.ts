@@ -1,8 +1,8 @@
-import DataBookModel, { IBook, IBookModel } from "../models/Book";
+import BookModel, { IBook, IBookModel } from "../models/Book";
 
-const createDataBook = async (data: IBook): Promise<IBookModel> => {
+const createBook = async (data: IBook): Promise<IBookModel> => {
     try {
-        const newDataBook = new DataBookModel(data);
+        const newDataBook = new BookModel(data);
         return await newDataBook.save();
     } catch (error: any) {
         throw new Error(`Erro ao criar livro: ${error.message}`);
@@ -10,46 +10,53 @@ const createDataBook = async (data: IBook): Promise<IBookModel> => {
 };
 
 
-const getAllDataBooks = async (): Promise<IBookModel[]> => {
+const getAllBooks = async (params: { ids?: string[] }): Promise<IBookModel[]> => {
     try {
-        return await DataBookModel.find().exec();
+        // Se a propriedade 'ids' estiver presente nos parâmetros, filtre os livros por esses IDs
+        if (params.ids && params.ids.length > 0) {
+            return await BookModel.find({ _id: { $in: params.ids } }).exec();
+        } else {
+            // Caso contrário, retorne todos os livros
+            return await BookModel.find().exec();
+        }
     } catch (error: any) {
-        throw new Error(`Erro ao obter todos os livros: ${error.message}`);
+        throw new Error(`Erro ao obter os livros: ${error.message}`);
     }
 };
 
-const getDataBookById = async (id: string): Promise<IBookModel | null> => {
+
+const getBookById = async (id: string): Promise<IBookModel | null> => {
     try {
-        return await DataBookModel.findById(id).exec();
+        return await BookModel.findById(id).exec();
     } catch (error: any) {
         throw new Error(`Erro ao obter livro por ID: ${error.message}`);
     }
 };
 
 
-const updateDataBookById = async (
+const updateBookById = async (
     id: string,
     data: Partial<IBook>
 ): Promise<IBookModel | null> => {
     try {
-        return await DataBookModel.findByIdAndUpdate(id, data, { new: true }).exec();
+        return await BookModel.findByIdAndUpdate(id, data, { new: true }).exec();
     } catch (error: any) {
         throw new Error(`Erro ao atualizar livro por ID: ${error.message}`);
     }
 };
 
-const deleteDataBookById = async (id: string): Promise<void> => {
+const deleteBookById = async (id: string): Promise<void> => {
     try {
-        await DataBookModel.findByIdAndDelete(id).exec();
+        await BookModel.findByIdAndDelete(id).exec();
     } catch (error: any) {
         throw new Error(`Erro ao excluir livro por ID: ${error.message}`);
     }
 };
 
 export {
-    createDataBook,
-    getAllDataBooks,
-    getDataBookById,
-    updateDataBookById,
-    deleteDataBookById,
+    createBook,
+    getAllBooks,
+    getBookById,
+    updateBookById,
+    deleteBookById,
 };
