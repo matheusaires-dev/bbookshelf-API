@@ -1,9 +1,10 @@
 import express from 'express';
-import * as UserController from '../controllers/userController';
+import authMiddleware from '../middlewares/authMiddleware';
+import authController from '../controllers/authController';
 
 const router = express.Router();
 
-router.post('/login', UserController.login);
+router.post('/login', authMiddleware.validateLoginBody , authController.login);
 
 
 export default router;

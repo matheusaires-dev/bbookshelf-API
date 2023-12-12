@@ -1,83 +1,77 @@
-import { Request, Response } from 'express';
-import * as UserServices from '../services/userServices';
+import { Request, Response, NextFunction } from 'express';
+import UserServices from '../services/userServices';
+import { IUser } from '../models/User';
+import { MongoError, MongoServerError } from 'mongodb';
 
-// Controller para manipular operações relacionadas a usuários
-const getAllUsers = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const users = await UserServices.getAllUsers();
-        res.status(200).json(users);
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
-    }
-};
+const usersController = {
 
-const getUserById = async (req: Request, res: Response): Promise<void> => {
-    const { userId } = req.params;
-    try {
-        const user = await UserServices.getUserById(userId);
-        if (user) {
-            user.password
-            res.status(200).json({ success: true, data: user });
-        } else {
-            res.status(404).json({ success: false, message: 'User not fould' });
+    getAllUsers: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const users = await UserServices.getAllUsers();
+            res.status(200).json(users);
+        } catch (error) {
+            next(error);
         }
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-const login = async (req: Request, res: Response): Promise<void> => {
-    const { email, password } = req.body;
-    try {
-        const user = await UserServices.getUserByEmail(email);
-        if (user) {
-            if(user.password === password){
+    },
+    getUserById: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { userId } = req.params;
+        try {
+            const user = await UserServices.getUserById(userId);
+            if (user) {
+                user.password
                 res.status(200).json({ success: true, data: user });
-            }else{
-                res.status(401).json({ success: false, message: 'not authorized' });
-            };
-            
-        } else {
-            res.status(404).json({ success: false, message: 'user not fould' });
+            } else {
+                res.status(404).json({ success: false, message: 'User not fould' });
+            }
+        } catch (error) {
+            next(error);
         }
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
+    },
 
-const createUser = async (req: Request, res: Response): Promise<void> => {
-    const userData = req.body;
-    try {
-        const newUser = await UserServices.createUser(userData);
-        res.status(201).json({ success: true, data: newUser });
-    } catch (error: any) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-const updateUserById = async (req: Request, res: Response): Promise<void> => {
-    const { userId } = req.params;
-    const userData = req.body;
-    try {
-        const updatedUser = await UserServices.updateUserById(userId, userData);
-        if (updatedUser) {
-            res.status(200).json(updatedUser);
-        } else {
-            res.status(404).json({ error: 'Usuário não encontrado' });
+    createUser: async (req: Request<{}, {}, IUser>, res: Response, next: NextFunction): Promise<void> => {
+        const userData = req.body;
+        try {
+            const newUser = await UserServices.createUser(userData);
+            res.status(201).json({ success: true, data: newUser });
+        } catch (error:any) {
+            if (error instanceof MongoServerError) {
+                if (error.code === 11000) {
+                    res.status(409).json({ success: true, message: "Error creating user: Email already registered in the database." });
+                } else {
+                    next(error);
+                }
+            } else {
+                console.log(error.message)
+                next(error);
+            }
         }
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
-    }
-};
+    },
 
-const deleteUserById = async (req: Request, res: Response): Promise<void> => {
-    const { userId } = req.params;
-    try {
-        await UserServices.deleteUserById(userId);
-        res.status(204).send();
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
-    }
-};
+    updateUserById: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { userId } = req.params;
+        const userData = req.body;
+        try {
+            const updatedUser = await UserServices.updateUserById(userId, userData);
+            if (updatedUser) {
+                res.status(200).json(updatedUser);
+            } else {
+                res.status(404).json({ error: 'Usuário não encontrado' });
+            }
+        } catch (error) {
+            next(error);
+        }
+    },
 
-export { getAllUsers, getUserById, createUser, updateUserById, deleteUserById, login };
+    deleteUserById: async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        const { userId } = req.params;
+        try {
+            await UserServices.deleteUserById(userId);
+            res.status(204).send();
+        } catch (error) {
+            next(error);
+        }
+    },
+}
+
+
+export default usersController;
