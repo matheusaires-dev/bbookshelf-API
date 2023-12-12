@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
 import userServices from "../services/userServices";
 import { IUser, role } from "../models/User";
+import apiResponse from "../helpers/apiResponse";
 
 const authMiddleware = {
     validateLoginBody: (req: Request, res: Response, next: NextFunction): void => {
@@ -9,7 +10,7 @@ const authMiddleware = {
             const { email, password } = req.body;
 
             if (!email || !password) {
-                res.status(400).json({ success: false, message: 'Email and password are required' });
+                res.status(400).json(apiResponse.fail("Email and password are required"));
             } else {
                 next();
             }
@@ -36,12 +37,12 @@ const authMiddleware = {
 
             } catch (error) {
                 if (error instanceof jwt.JsonWebTokenError) {
-                    res.status(403).json({ success: false, message: `${error.name}: ${error.message}` });
+                    res.status(403).json(apiResponse.fail(`${error.name}: ${error.message}`));
                 };
             }
 
         } else {
-            res.status(401).json({ success: false, message: 'Token not provided' });
+            res.status(401).json(apiResponse.fail("Token not provided"));
         }
     },
 
@@ -53,7 +54,7 @@ const authMiddleware = {
             if (user.role === role) {
                 next();
             } else {
-                res.status(403).json({ success: false, message: 'Permission denied' });
+                res.status(403).json(apiResponse.fail("Permission denied"));
             }
         }
     },

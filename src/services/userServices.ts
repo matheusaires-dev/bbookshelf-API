@@ -1,17 +1,21 @@
-import { ObjectId } from "mongoose";
+import { Types } from "mongoose";
 import UserModel, { IUser, IUserModel } from "../models/User";
 
 const userServices = {
     createUser: async (userData: IUser): Promise<IUserModel> => {
-        const newUser = new UserModel(userData);
-        return await newUser.save();
+        try {
+            const newUser = new UserModel(userData);
+            return await newUser.save();
+        } catch (error: any) {
+            throw new Error(`Error creating user: ${error.message}`);
+        }
     },
 
     getAllUsers: async (): Promise<IUserModel[]> => {
         try {
             return await UserModel.find().exec();
         } catch (error: any) {
-            throw new Error(`Erro ao obter todos os usuários: ${error.message}`);
+            throw new Error(`Error getting all users: ${error.message}`);
         }
     },
 
@@ -19,7 +23,7 @@ const userServices = {
         try {
             return await UserModel.findById(userId).exec();
         } catch (error: any) {
-            throw new Error(`Erro ao obter usuário por ID: ${error.message}`);
+            throw new Error(`Error getting user by ID: ${error.message}`);
         }
     },
 
@@ -27,7 +31,7 @@ const userServices = {
         try {
             return await UserModel.findOne({ email }).exec();
         } catch (error: any) {
-            throw new Error(error.message);
+            throw new Error(`Error getting user by email: ${error.message}`);
         }
     },
 
@@ -38,7 +42,7 @@ const userServices = {
         try {
             return await UserModel.findByIdAndUpdate(userId, userData, { new: true }).exec();
         } catch (error: any) {
-            throw new Error(`Erro ao atualizar usuário por ID: ${error.message}`);
+            throw new Error(`Error updating user by ID: ${error.message}`);
         }
     },
 
@@ -46,12 +50,9 @@ const userServices = {
         try {
             await UserModel.findByIdAndDelete(userId).exec();
         } catch (error: any) {
-            throw new Error(`Erro ao excluir usuário por ID: ${error.message}`);
+            throw new Error(`Error deleting user by ID: ${error.message}`);
         }
-    }
-
-}
-
-
+    },
+};
 
 export default userServices;
