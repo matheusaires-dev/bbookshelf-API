@@ -7,6 +7,7 @@ import authRouter from './routes/authRoute';
 import cors from 'cors';
 
 import { Error } from 'mongoose';
+import errorMiddleware from './middlewares/errorMiddleware';
 
 dotenv.config();
 
@@ -36,16 +37,7 @@ app.use('/', authRouter);
 app.use('/', userRouter);
 app.use('/', bookRouter);
 
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    console.log("AAAA")
-    if (err instanceof SyntaxError) {
-        res.status(400).send(err.message);
-    } else if (err instanceof Error) {
-        res.status(400).send(err.message);
-    } else {
-        res.status(500).send("Something went wrong on the server. Contact support");
-    }
-});
+app.use(errorMiddleware.apiError);
 
 
 app.listen(PORT, () => {
