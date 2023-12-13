@@ -3,12 +3,8 @@ import UserModel, { IUser, IUserModel } from "../models/User";
 
 const userServices = {
     createUser: async (userData: IUser): Promise<IUserModel> => {
-        try {
-            const newUser = new UserModel(userData);
-            return await newUser.save();
-        } catch (error: any) {
-            throw new Error(`Error creating user: ${error.message}`);
-        }
+        const newUser = new UserModel(userData);
+        return await newUser.save();
     },
 
     getAllUsers: async (): Promise<IUserModel[]> => {
