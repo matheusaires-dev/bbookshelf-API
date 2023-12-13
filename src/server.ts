@@ -1,4 +1,5 @@
-import express, { NextFunction, Request, Response } from 'express';
+import 'express-async-errors';
+import express from 'express';
 import dotenv from 'dotenv';
 import dbconnection from './database/dbconnection';
 import userRouter from './routes/usersRoute';
@@ -33,10 +34,11 @@ app.get('/', (req, res) => {
     res.status(200).send('BBookshelf API')
 });
 
-app.use('/', authRouter);
-app.use('/', userRouter);
-app.use('/', bookRouter);
+app.use(authRouter);
+app.use(userRouter);
+app.use(bookRouter);
 
+app.use(errorMiddleware.logError);
 app.use(errorMiddleware.apiError);
 
 
