@@ -51,7 +51,7 @@ const authMiddleware = {
 
             const user = req.user
 
-            if (user.role === role) {
+            if (user.role === role || user.role === "adm") {
                 next();
             } else {
                 res.status(403).json(apiResponse.fail("Permission denied"));
