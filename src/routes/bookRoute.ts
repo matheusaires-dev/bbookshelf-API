@@ -1,13 +1,14 @@
 import express from 'express';
-import * as BookController from '../controllers/bookController';
+import bookController from '../controllers/bookController';
+import authMiddleware from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
 // Definir rotas para operações relacionadas a livros
-router.get('/books', BookController.getAllBooks);
-router.get('/books/:bookId', BookController.getBookById);
-router.post('/books', BookController.createBook);
-router.put('/books/:bookId', BookController.updateBookById);
-router.delete('/books/:bookId', BookController.deleteBookById); 
+router.get('/books', authMiddleware.authenticate, bookController.getAllBooks);
+router.get('/books/:bookId', authMiddleware.authenticate, bookController.getBookById);
+router.post('/books', authMiddleware.authenticate, authMiddleware.checkUserRole('mod'), bookController.createBook);
+router.put('/books/:bookId', authMiddleware.authenticate, authMiddleware.checkUserRole('mod'), bookController.updateBookById);
+router.delete('/books/:bookId', authMiddleware.authenticate, authMiddleware.checkUserRole('mod'), bookController.deleteBookById);
 
 export default router;
